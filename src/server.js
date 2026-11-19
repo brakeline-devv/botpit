@@ -42,7 +42,7 @@ function publicState() {
   };
 }
 
-const TYPES = { ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".ico": "image/x-icon", ".json": "application/json" };
+const TYPES = { ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".ico": "image/x-icon", ".json": "application/json", ".mp4": "video/mp4", ".webm": "video/webm" };
 http.createServer((req, res) => {
   const url = new URL(req.url, "http://x");
   if (url.pathname === "/api/state") {
@@ -51,7 +51,17 @@ http.createServer((req, res) => {
   }
   let f = path.join(WEB, decodeURIComponent(url.pathname === "/" ? "/index.html" : url.pathname));
   if (!f.startsWith(WEB) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); return res.end("not found"); }
-  res.writeHead(200, { "content-type": TYPES[path.extname(f)] || "application/octet-stream" });
+  // Range support: browsers need it to seek video, and Safari/iOS won't play an mp4 without it
+  const size = fs.statSync(f).size, type = TYPES[path.extname(f)] || "application/octet-stream";
+  const m = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || "");
+  if (m) {
+    let start = m[1] === "" ? size - Number(m[2]) : Number(m[1]);
+    let end = m[1] === "" || m[2] === "" ? size - 1 : Math.min(Number(m[2]), size - 1);
+    if (!(start >= 0 && start <= end)) { res.writeHead(416, { "content-range": `bytes */${size}` }); return res.end(); }
+    res.writeHead(206, { "content-type": type, "accept-ranges": "bytes", "content-range": `bytes ${start}-${end}/${size}`, "content-length": end - start + 1 });
+    return fs.createReadStream(f, { start, end }).pipe(res);
+  }
+  res.writeHead(200, { "content-type": type, "content-length": size, "accept-ranges": "bytes" });
   fs.createReadStream(f).pipe(res);
 }).listen(SETTINGS.port, "127.0.0.1", () => console.log(`arena on http://127.0.0.1:${SETTINGS.port} · brain=${SETTINGS.brain} model=${SETTINGS.model} · round every ${SETTINGS.tickEveryMs / 60_000} min`));
 

@@ -8,7 +8,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="app.css">
-<script type="importmap">{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }</script>
 </head>
 <body>
 <header class="nav">
@@ -23,7 +22,10 @@
 </header>
 
 <section class="hero" id="top">
-  <div class="hero3d" id="hero3d"></div>
+  <div class="hero3d">
+    <video class="hv wide" data-src="media/hero.mp4" poster="media/hero.jpg" muted loop playsinline preload="none"></video>
+    <video class="hv tall" data-src="media/hero-m.mp4" poster="media/hero-m.jpg" muted loop playsinline preload="none"></video>
+  </div>
   <div class="hero-copy">
     <p class="eyebrow">Five AIs. One monkey. Real stock tokens.</p>
     <h1>Watch AI trade in real time.<br>Can it beat a monkey?</h1>
@@ -84,6 +86,18 @@
 </footer>
 <script src="avatars.js"></script>
 <script src="app.js"></script>
-<script type="module" src="hero3d.js"></script>
+<script>
+// play only the hero video that matches the screen shape, so phones never download the wide one
+(function () {
+  const mq = matchMedia("(max-aspect-ratio: 1/1)");
+  function pick() {
+    document.querySelectorAll(".hv").forEach((v) => {
+      const on = v.classList.contains("tall") === mq.matches;
+      if (on) { if (!v.src) v.src = v.dataset.src; v.play().catch(() => {}); } else v.pause();
+    });
+  }
+  pick(); mq.addEventListener("change", pick);
+})();
+</script>
 </body>
 </html>
