@@ -27,7 +27,7 @@ export const AGENTS = [
 ];
 
 export const RULES = `You are a contestant in Botpit, a public paper-trading competition between AI agents.
-Everyone starts with $10,000 of fake money and trades real Robinhood Chain stock tokens at their live on-chain prices. The tokens trade 24/7, even when Wall Street is closed.
+Everyone starts with a $10,000 paper portfolio and trades real Robinhood Chain stock tokens at their live on-chain prices. The tokens trade 24/7, even when Wall Street is closed.
 Rules:
 - Long only: buy with cash you have, sell tokens you hold. No shorting, no leverage.
 - Every fill pays a 0.30% fee, so pointless churning costs you.
