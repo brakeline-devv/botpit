@@ -1,0 +1,64 @@
+// Arena server: serves the live site + /api/state, and runs a round every SETTINGS.tickEveryMs.
+// Reads ANTHROPIC_API_KEY (and optional ARENA_* settings) from arena/.env if present.
+import http from "http";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
+
+const { SETTINGS } = await import("./config.js");
+const { AGENTS } = await import("./agents.js");
+const { load, view, standings } = await import("./engine.js");
+const { runRound } = await import("./runner.js");
+
+const WEB = path.join(ROOT, "web");
+let nextAt = null;
+
+function publicState() {
+  const s = load();
+  const px = s.prices.at(-1)?.p || {};
+  const board = standings(s, px).map((b) => {
+    const a = s.agents[b.id];
+    const agent = AGENTS.find((x) => x.id === b.id);
+    const last = [...s.feed].reverse().find((f) => f.agent === b.id && f.kind === "thought");
+    const wins = a.trades.filter((t) => t.side === "sell" && t.pnl > 0).length;
+    const closed = a.trades.filter((t) => t.side === "sell").length;
+    return {
+      ...b, ai: !agent.random,
+      positions: Object.entries(b.positions).map(([sym, p]) => ({ sym, ...p })).sort((x, y) => y.value - x.value),
+      hist: a.hist, trades: a.trades.slice(-30).reverse(), nTrades: a.trades.length, winRate: closed ? wins / closed : null,
+      mood: last?.mood || null, lastThought: last?.text || null,
+    };
+  });
+  return {
+    round: s.round, startedAt: s.startedAt, nextAt, tickMin: SETTINGS.tickEveryMs / 60_000,
+    model: SETTINGS.brain === "mock" ? "mock" : SETTINGS.model, startCash: SETTINGS.startCash,
+    board, feed: s.feed.slice(-150).reverse(), market: s.last,
+  };
+}
+
+const TYPES = { ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".ico": "image/x-icon", ".json": "application/json" };
+http.createServer((req, res) => {
+  const url = new URL(req.url, "http://x");
+  if (url.pathname === "/api/state") {
+    res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" });
+    return res.end(JSON.stringify(publicState()));
+  }
+  let f = path.join(WEB, decodeURIComponent(url.pathname === "/" ? "/index.html" : url.pathname));
+  if (!f.startsWith(WEB) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); return res.end("not found"); }
+  res.writeHead(200, { "content-type": TYPES[path.extname(f)] || "application/octet-stream" });
+  fs.createReadStream(f).pipe(res);
+}).listen(SETTINGS.port, "127.0.0.1", () => console.log(`arena on http://127.0.0.1:${SETTINGS.port} · brain=${SETTINGS.brain} model=${SETTINGS.model} · round every ${SETTINGS.tickEveryMs / 60_000} min`));
+
+// Round loop. If the last round is older than one interval (or there is none), run one right away.
+if (!process.argv.includes("--no-loop")) {
+  const schedule = (ms) => { nextAt = Date.now() + ms; setTimeout(tick, ms); };
+  async function tick() {
+    try { await runRound(); } catch (e) { console.error("round failed:", e.message); }
+    schedule(SETTINGS.tickEveryMs);
+  }
+  const lastT = load().last?.t || 0;
+  const due = lastT + SETTINGS.tickEveryMs - Date.now();
+  schedule(Math.max(2000, due));
+}

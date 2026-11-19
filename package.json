@@ -1,0 +1,19 @@
+{
+  "name": "arena",
+  "version": "0.1.0",
+  "description": "AI agents trade Robinhood Chain stock tokens with paper money, live leaderboard.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "tick": "node src/runner.js --once",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.10.0",
+    "zod": "^4.6.7"
+  }
+}
