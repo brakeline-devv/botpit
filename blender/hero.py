@@ -11,7 +11,7 @@ from mathutils import Vector
 argv = sys.argv[sys.argv.index("--") + 1:]
 MODE = argv[0]
 FMT = argv[3] if MODE == "preview" and len(argv) > 3 else (argv[2] if MODE == "render" and len(argv) > 2 else "wide")
-FPS, LOOP = 30, 10.0
+FPS, LOOP = 60, 10.0
 NF = int(FPS * LOOP)
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -30,7 +30,9 @@ for dev in ("OPTIX", "CUDA"):
         break
     except TypeError:
         continue
-sc.cycles.samples = 48 if MODE == "render" else 32
+sc.cycles.samples = 40 if MODE == "render" else 32
+sc.render.use_motion_blur = True
+sc.render.motion_blur_shutter = 0.5
 sc.cycles.use_denoising = True
 try: sc.cycles.denoiser = "OPTIX"
 except TypeError: pass
@@ -159,35 +161,48 @@ def gate_c(c): return dict(x=c * 1.3, y=0.1 if c == 0 else -2.9, z=0.7, r=c * 0.
 P = {"crown": (crown_s, crown_c), "fan": (fan_s, fan_c), "columns": (col_s, col_c), "cross": (cross_s, cross_c),
      "arc": (arc_s, arc_c), "core": (core_s, core_c), "wide": (wide_s, wide_c), "gate": (gate_s, gate_c)}
 TL = [(0, "crown"), (1.55, "fan"), (2.9, "columns"), (4.0, "cross"), (5.0, "arc"), (6.5, "core"), (7.9, "wide"), (9.1, "gate"), (10, "crown")]
-ease = lambda x: x * x * x * (x * (x * 6 - 15) + 10)
-lerp = lambda a, b, k: a + (b - a) * k
-
-def pose(t):
-    t %= LOOP; i = 0
-    while i < len(TL) - 2 and t >= TL[i + 1][0]: i += 1
-    (ta, A), (tb, B) = TL[i], TL[i + 1]
-    k = ease(min(1, max(0, (t - ta - 0.18) / (tb - ta - 0.18))))
-    return P[A], P[B], k
-
 def B(x, y, z): return Vector((x, -z, y))   # three.js -> Blender axes
 
+# Smooth, never-stopping motion: every property follows a periodic cubic Hermite (Catmull-Rom) spline through the
+# 8 formations, so velocity is continuous at each formation instead of easing to a stop and starting again.
+KT = [tt for tt, _ in TL[:-1]]                       # key times, period LOOP
+KN = [nm for _, nm in TL[:-1]]
+SLAB_KEYS = {s: [dict({"o": 1}, **P[n][0](s)) for n in KN] for s in range(-5, 6)}
+CUBE_KEYS = {c: [P[n][1](c) for n in KN] for c in range(-2, 3)}
+TENSION = 0.9                                        # <1 = slightly softer arrival at each formation
+
+def spline(keys, field, t):
+    n = len(KT); t %= LOOP
+    i = max(j for j in range(n) if KT[j] <= t)
+    T = lambda j: KT[j % n] + LOOP * (j // n)        # unwrapped key time
+    V = lambda j: keys[j % n][field]
+    t0, t1, t2, t3 = T(i - 1), T(i), T(i + 1), T(i + 2)
+    p0, p1, p2, p3 = V(i - 1), V(i), V(i + 1), V(i + 2)
+    d = t2 - t1; u = (t - t1) / d
+    m1 = TENSION * (p2 - p0) / (t2 - t0) * d
+    m2 = TENSION * (p3 - p1) / (t3 - t1) * d
+    u2, u3 = u * u, u * u * u
+    return (2 * u3 - 3 * u2 + 1) * p1 + (u3 - 2 * u2 + u) * m1 + (-2 * u3 + 3 * u2) * p2 + (u3 - u2) * m2
+
 def apply(t):
-    (As, Ac), (Bs, Bc), k = pose(t)
+    W = math.tau / LOOP
     for i, o in enumerate(SLABS):
-        s = i - 5; a, b = As(s), Bs(s); W = math.tau / LOOP; wob = math.sin(t * W * 2 + s) * 0.03   # periodic over the loop
-        o.location = B(lerp(a["x"], b["x"], k), lerp(a["y"], b["y"], k) + wob, lerp(a["z"], b["z"], k))
-        o.rotation_euler = (lerp(a["rx"], b["rx"], k), -(lerp(a["rz"], b["rz"], k) + wob * 0.3), lerp(a["ry"], b["ry"], k))
-        o.scale = (1, 1, max(0.02, lerp(a["h"], b["h"], k)))
-        o["glow"] = lerp(a["g"], b["g"], k)
-        op = lerp(a.get("o", 1), b.get("o", 1), k); o["op"] = op
-        if op < 0.03: o.scale = (0.001, 0.001, 0.001)
+        s = i - 5; K = SLAB_KEYS[s]; f = lambda k: spline(K, k, t)
+        wob = math.sin(t * W * 2 + s) * 0.03     # periodic over the loop
+        o.location = B(f("x"), f("y") + wob, f("z"))
+        o.rotation_euler = (f("rx"), -(f("rz") + wob * 0.3), f("ry"))
+        op = float(min(1.0, max(0.0, f("o"))))   # float: an int here turns the keyed property into a 0/1 step
+        h = max(0.02, f("h"))
+        fade = op * op * (3 - 2 * op)            # smoothstep: fade + shrink together, no pop
+        o.scale = (max(0.001, fade), max(0.001, fade), h * (0.6 + 0.4 * fade))
+        o["glow"] = float(max(0.0, f("g"))); o["op"] = op
     for i, o in enumerate(CUBES):
-        c = i - 2; a, b = Ac(c), Bc(c)
-        o.location = B(lerp(a["x"], b["x"], k), lerp(a["y"], b["y"], k) + math.sin(t * math.tau / LOOP * 3 + c) * 0.06, lerp(a["z"], b["z"], k))
-        r = lerp(a["r"], b["r"], k) + t * math.tau / LOOP   # one full turn per loop
-        o.rotation_euler = (r * 0.6, -r * 0.3, r)
-        o.scale = [max(0.001, lerp(a["k"], b["k"], k))] * 3
-        o["glow"] = lerp(a["g"], b["g"], k)
+        c = i - 2; K = CUBE_KEYS[c]; f = lambda k: spline(K, k, t)
+        o.location = B(f("x"), f("y") + math.sin(t * W * 3 + c) * 0.06, f("z"))
+        base, spin = f("r"), t * W               # whole turns per loop on every axis, so the loop closes exactly
+        o.rotation_euler = (base * 0.6 + spin, -base * 0.3 - spin, base + spin)
+        o.scale = [max(0.001, f("k"))] * 3
+        o["glow"] = float(max(0.0, f("g")))
     sway = math.sin(t / LOOP * math.tau) * 0.35
     cam.location.x = sway
     d = Vector((0, 0, look_z)) - cam.location
@@ -217,12 +232,15 @@ if MODE == "preview":
     sc.render.image_settings.file_format = "PNG"
     bpy.ops.render.render(write_still=True)
 else:
-    for f in range(NF):
+    for f in range(-3, NF + 3):              # keys past both ends so motion blur at frame 0 / NF-1 matches mid-loop
         apply(f / FPS); key_all(f)
     for o in SLABS + CUBES + [cam]:
         if o.animation_data and o.animation_data.action:
             for fc in o.animation_data.action.fcurves:
                 for kp in fc.keyframe_points: kp.interpolation = "LINEAR"
+    import os
+    if os.environ.get("FRAMES"): sc.frame_start, sc.frame_end = map(int, os.environ["FRAMES"].split("-"))
+    if os.environ.get("NOBLUR"): sc.render.use_motion_blur = False
     sc.render.filepath = argv[1]
     sc.render.image_settings.file_format = "JPEG"; sc.render.image_settings.quality = 94
     bpy.ops.render.render(animation=True)
