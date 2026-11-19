@@ -10,7 +10,7 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const { SETTINGS } = await import("./config.js");
 const { AGENTS } = await import("./agents.js");
 const { load, view, standings } = await import("./engine.js");
-const { runRound } = await import("./runner.js");
+const { runRound, isRunning } = await import("./runner.js");
 
 const WEB = path.join(ROOT, "web");
 let nextAt = null;
@@ -31,7 +31,11 @@ function publicState() {
       mood: last?.mood || null, lastThought: last?.text || null,
     };
   });
+  // SPY buy & hold from the first round: the "just buy the market" line every agent is measured against
+  const spy0 = s.prices.find((p) => p.p.SPY)?.p.SPY;
+  const bench = spy0 ? s.prices.filter((p) => p.p.SPY).map((p) => ({ t: p.t, eq: Math.round(SETTINGS.startCash * p.p.SPY / spy0 * 100) / 100 })) : [];
   return {
+    running: isRunning(), bench,
     round: s.round, startedAt: s.startedAt, nextAt, tickMin: SETTINGS.tickEveryMs / 60_000,
     model: SETTINGS.brain === "mock" ? "mock" : SETTINGS.model, startCash: SETTINGS.startCash,
     board, feed: s.feed.slice(-150).reverse(), market: s.last,

@@ -7,6 +7,7 @@ import { decide } from "./brain.js";
 import { load, save, view, execute, priceMap, standings } from "./engine.js";
 
 let running = false;
+export const isRunning = () => running;
 
 export async function runRound(log = console.log) {
   if (running) return null;
