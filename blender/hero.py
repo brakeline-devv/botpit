@@ -1,4 +1,4 @@
-"""Arena hero: glass slabs + small cubes flowing through 8 formations on a 10 s loop (crown -> fan -> columns ->
+"""Botpit hero: glass slabs + small cubes flowing through 8 formations on a 10 s loop (crown -> fan -> columns ->
 cross -> arc -> core -> wide V -> gate -> crown), rendered in Cycles with bevelled edges, a gradient glass shader,
 light pouring from below and fog-glow bloom. Rendered on black for the site hero.
 

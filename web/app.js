@@ -1,4 +1,4 @@
-// Arena front end: polls /api/state and renders the breaking headline, timing tower, equity race, bags and the chat.
+// Botpit front end: polls /api/state and renders the breaking headline, timing tower, equity race, bags and the chat.
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const money = (x) => "$" + Math.round(x).toLocaleString("en-US");

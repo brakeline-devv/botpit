@@ -2,7 +2,7 @@
 // plus Wall Street context from Yahoo (5-day and 1-month trend, whether NYSE is open).
 import { STOCKS, SETTINGS } from "./config.js";
 
-const UA = { "user-agent": "Mozilla/5.0 (arena research)" };
+const UA = { "user-agent": "Mozilla/5.0 (botpit research)" };
 
 async function getJson(url, tries = 3) {
   let last;

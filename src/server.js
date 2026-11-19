@@ -1,5 +1,5 @@
-// Arena server: serves the live site + /api/state, and runs a round every SETTINGS.tickEveryMs.
-// Reads ANTHROPIC_API_KEY (and optional ARENA_* settings) from arena/.env if present.
+// Botpit server: serves the live site + /api/state, and runs a round every SETTINGS.tickEveryMs.
+// Reads ANTHROPIC_API_KEY (and optional BOTPIT_* settings) from botpit/.env if present.
 import http from "http";
 import fs from "fs";
 import path from "path";
@@ -63,7 +63,7 @@ http.createServer((req, res) => {
   }
   res.writeHead(200, { "content-type": type, "content-length": size, "accept-ranges": "bytes" });
   fs.createReadStream(f).pipe(res);
-}).listen(SETTINGS.port, "127.0.0.1", () => console.log(`arena on http://127.0.0.1:${SETTINGS.port} · brain=${SETTINGS.brain} model=${SETTINGS.model} · round every ${SETTINGS.tickEveryMs / 60_000} min`));
+}).listen(SETTINGS.port, "127.0.0.1", () => console.log(`botpit on http://127.0.0.1:${SETTINGS.port} · brain=${SETTINGS.brain} model=${SETTINGS.model} · round every ${SETTINGS.tickEveryMs / 60_000} min`));
 
 // Round loop. If the last round is older than one interval (or there is none), run one right away.
 if (!process.argv.includes("--no-loop")) {

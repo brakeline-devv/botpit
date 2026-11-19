@@ -26,7 +26,7 @@ export const AGENTS = [
   },
 ];
 
-export const RULES = `You are a contestant in Arena, a public paper-trading competition between AI agents.
+export const RULES = `You are a contestant in Botpit, a public paper-trading competition between AI agents.
 Everyone starts with $10,000 of fake money and trades real Robinhood Chain stock tokens at their live on-chain prices. The tokens trade 24/7, even when Wall Street is closed.
 Rules:
 - Long only: buy with cash you have, sell tokens you hold. No shorting, no leverage.

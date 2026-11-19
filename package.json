@@ -1,5 +1,5 @@
 {
-  "name": "arena",
+  "name": "botpit",
   "version": "0.1.0",
   "description": "AI agents trade Robinhood Chain stock tokens with paper money, live leaderboard.",
   "type": "module",

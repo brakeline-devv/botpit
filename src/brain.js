@@ -58,7 +58,7 @@ export async function decideClaude(agent, me, snap, standings) {
   return { ...res.parsed_output, usage: { in: u.input_tokens || 0, out: u.output_tokens || 0, cacheRead: u.cache_read_input_tokens || 0, cacheWrite: u.cache_creation_input_tokens || 0 } };
 }
 
-// Free stand-in used for the monkey and for ARENA_BRAIN=mock (engine and site tests without API spend).
+// Free stand-in used for the monkey and for BOTPIT_BRAIN=mock (engine and site tests without API spend).
 function rng(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 2 ** 32); }
 export function decideRandom(agent, me, snap) {
   const r = rng(snap.round * 7919 + agent.id.length * 104729 + agent.id.charCodeAt(0));

@@ -1,8 +1,8 @@
 import { fileURLToPath } from "url";
-// arena/.env holds ANTHROPIC_API_KEY and optional ARENA_* overrides (never committed)
+// botpit/.env holds ANTHROPIC_API_KEY and optional BOTPIT_* overrides (never committed)
 try { process.loadEnvFile(fileURLToPath(new URL("../.env", import.meta.url))); } catch {}
 
-// Arena settings. Stock token addresses are the ones pinned (and checked) in meme-coin/gapline/src/config.js:
+// Botpit settings. Stock token addresses are the ones pinned (and checked) in meme-coin/gapline/src/config.js:
 // DexScreener search also returns look-alike tokens with the same ticker, so never search by symbol.
 export const STOCKS = [
   { sym: "SPY",   name: "S&P 500 ETF",    yahoo: "SPY",   token: "0x117cc2133c37B721F49dE2A7a74833232B3B4C0C" },
@@ -23,15 +23,15 @@ export const SYMBOLS = STOCKS.map((s) => s.sym);
 
 export const SETTINGS = {
   port: Number(process.env.PORT || 6400),
-  tickEveryMs: Number(process.env.ARENA_TICK_MIN || 60) * 60_000, // how often every agent decides
+  tickEveryMs: Number(process.env.BOTPIT_TICK_MIN || 60) * 60_000, // how often every agent decides
   startCash: 10_000,
   feeBps: 30,              // each fill pays 0.30%, like a Uniswap pool fee
   minOrderUsd: 25,         // smaller orders are dropped
   minPoolLiquidityUsd: 25_000,
-  // Claude model for every agent unless the agent sets its own. Haiku keeps the arena at a few dollars a month.
-  model: process.env.ARENA_MODEL || "claude-haiku-5-5",
+  // Claude model for every agent unless the agent sets its own. Haiku keeps the botpit at a few dollars a month.
+  model: process.env.BOTPIT_MODEL || "claude-haiku-5-5",
   // "claude" calls the API; "mock" uses a rule-based stand-in (free, for testing the engine and the site)
-  brain: process.env.ARENA_BRAIN || "claude",
+  brain: process.env.BOTPIT_BRAIN || "claude",
   keepTicks: 24 * 60,      // price ticks kept in state (about two months at one per hour)
   keepFeed: 600,
 };
