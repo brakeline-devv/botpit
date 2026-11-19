@@ -61,7 +61,7 @@ function spark(hist, color) {
   const pts = hist.slice(-48); if (pts.length < 2) return "";
   const ys = pts.map((p) => p.eq), base = S.startCash, lo = Math.min(...ys, base), hi = Math.max(...ys, base), r = hi - lo || 1;
   const X = (i) => (i / (pts.length - 1)) * 118 + 1, Y = (v) => 38 - ((v - lo) / r) * 36;
-  return `<svg viewBox="0 0 120 40"><line x1="0" x2="120" y1="${Y(base)}" y2="${Y(base)}" stroke="#2a323d" stroke-dasharray="2 3"/><polyline fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" points="${pts.map((p, i) => X(i).toFixed(1) + "," + Y(p.eq).toFixed(1)).join(" ")}"/></svg>`;
+  return `<svg viewBox="0 0 120 40"><line x1="0" x2="120" y1="${Y(base)}" y2="${Y(base)}" stroke="rgba(255,255,255,.14)" stroke-dasharray="2 3"/><polyline fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" points="${pts.map((p, i) => X(i).toFixed(1) + "," + Y(p.eq).toFixed(1)).join(" ")}"/></svg>`;
 }
 function tower() {
   const pr = prevRanks();
@@ -71,7 +71,7 @@ function tower() {
     return `<div class="tw ${i === 0 ? "lead" : ""}" style="--c:${b.color}">
       <div class="pos"><b>${i + 1}</b>${mv}</div>
       <div class="face">${face(b)}</div>
-      <div class="id"><div class="nm">${esc(b.name)}${b.ai ? "" : '<span class="pill">no AI</span>'}${b.mood ? `<span class="pill mood">${esc(b.mood)}</span>` : ""}</div>
+      <div class="id"><div class="nm">${esc(b.name)}${b.ai ? "" : '<span class="pill-s">no AI</span>'}${b.mood ? `<span class="pill-s mood">${esc(b.mood)}</span>` : ""}</div>
         <div class="tg">${esc(b.tag)}</div><div class="say">${b.lastThought ? esc(b.lastThought) : "waiting for the first round"}</div></div>
       <div class="sp">${spark(b.hist, b.color)}</div>
       <div class="eq"><b>${money(b.equity)}</b><span class="${cls(b.retPct)}">${pct(b.retPct)}</span></div>
@@ -92,16 +92,16 @@ function chart() {
   let lo = Math.min(S.startCash, ...all.map((p) => p.eq)), hi = Math.max(S.startCash, ...all.map((p) => p.eq));
   const pad = (hi - lo) * 0.1 || 40; lo -= pad; hi += pad;
   const X = (t) => L + ((t - t0) / ((t1 - t0) || 1)) * (W - L - R), Y = (v) => T + (1 - (v - lo) / (hi - lo)) * (H - T - B);
-  let g = [hi - pad, S.startCash, lo + pad].map((v) => `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="${v === S.startCash ? "#333c48" : "#1a2028"}"/><text class="axis" x="${L - 8}" y="${Y(v) + 3}" text-anchor="end">${money(v)}</text>`).join("");
+  let g = [hi - pad, S.startCash, lo + pad].map((v) => `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="${v === S.startCash ? "rgba(255,255,255,.18)" : "rgba(255,255,255,.06)"}"/><text class="axis" x="${L - 8}" y="${Y(v) + 3}" text-anchor="end">${money(v)}</text>`).join("");
   g += `<text class="axis" x="${L}" y="${H - 5}">${new Date(t0).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</text><text class="axis" x="${W - R}" y="${H - 5}" text-anchor="end">now</text>`;
-  if (S.bench.length > 1) g += `<polyline fill="none" stroke="#cfd5dd" stroke-width="1.6" stroke-dasharray="5 4" opacity=".7" points="${S.bench.map((p) => X(p.t).toFixed(1) + "," + Y(p.eq).toFixed(1)).join(" ")}"/>`;
+  if (S.bench.length > 1) g += `<polyline fill="none" stroke="#d9dcff" stroke-width="1.6" stroke-dasharray="5 4" opacity=".7" points="${S.bench.map((p) => X(p.t).toFixed(1) + "," + Y(p.eq).toFixed(1)).join(" ")}"/>`;
   const ends = [];
   for (const s of [...series].reverse()) {
     g += `<polyline fill="none" stroke="${s.c}" stroke-width="2.4" stroke-linejoin="round" points="${s.pts.map((p) => X(p.t).toFixed(1) + "," + Y(p.eq).toFixed(1)).join(" ")}"/>`;
     const l = s.pts.at(-1); ends.push({ y: Y(l.eq), x: X(l.t), c: s.c, n: s.n });
   }
   ends.sort((a, b) => a.y - b.y).forEach((e, i, arr) => { if (i && e.y - arr[i - 1].y < 13) e.y = arr[i - 1].y + 13; });
-  for (const e of ends) g += `<circle cx="${e.x}" cy="${e.y}" r="4" fill="${e.c}"/><text x="${e.x + 8}" y="${e.y + 4}" font-size="11" font-family="Bricolage Grotesque" font-weight="700" fill="${e.c}">${esc(e.n)}</text>`;
+  for (const e of ends) g += `<circle cx="${e.x}" cy="${e.y}" r="4" fill="${e.c}"/><text x="${e.x + 8}" y="${e.y + 4}" font-size="11" font-family="Inter Tight" font-weight="600" fill="${e.c}">${esc(e.n)}</text>`;
   $("#chart").innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${g}</svg>`;
   $("#legend").innerHTML = S.board.map((b) => `<span style="--c:${b.color}"><i></i>${esc(b.name)} <b class="${cls(b.retPct)}">${pct(b.retPct)}</b></span>`).join("") +
     `<span><i class="dash"></i>SPY hold <b class="${cls((S.bench.at(-1)?.eq ?? S.startCash) - S.startCash)}">${pct(((S.bench.at(-1)?.eq ?? S.startCash) / S.startCash - 1) * 100)}</b></span>`;
@@ -177,3 +177,9 @@ async function refresh() {
 refresh();
 setInterval(refresh, 20_000);
 setInterval(() => { clock(); if (S && S.nextAt && S.nextAt - Date.now() < 0 && !S.running) refresh(); }, 1000);
+
+// nav turns solid once the hero scrolls away; sections fade up as they enter
+const nav = document.querySelector(".nav");
+addEventListener("scroll", () => nav.classList.toggle("solid", scrollY > 40), { passive: true });
+const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: 0.08 });
+document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
