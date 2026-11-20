@@ -11,6 +11,7 @@ const { SETTINGS } = await import("./config.js");
 const { AGENTS } = await import("./agents.js");
 const { load, view, standings } = await import("./engine.js");
 const { runRound, isRunning } = await import("./runner.js");
+const { ask, quota, ASK } = await import("./ask.js");
 
 const WEB = path.join(ROOT, "web");
 let nextAt = null;
@@ -45,6 +46,20 @@ function publicState() {
 const TYPES = { ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".ico": "image/x-icon", ".json": "application/json", ".mp4": "video/mp4", ".webm": "video/webm" };
 http.createServer((req, res) => {
   const url = new URL(req.url, "http://x");
+  // nginx passes the visitor's address in x-real-ip; the server only listens on 127.0.0.1, so the header can be trusted
+  const ip = String(req.headers["x-real-ip"] || req.socket.remoteAddress || "?");
+  const json = (code, obj) => { res.writeHead(code, { "content-type": "application/json", "cache-control": "no-store" }); res.end(JSON.stringify(obj)); };
+  if (url.pathname === "/api/ask" && req.method === "GET") { const q = quota(ip); return json(200, { left: q.left, perHour: ASK.perIpHour, open: q.dayLeft > 0, maxLen: ASK.maxLen }); }
+  if (url.pathname === "/api/ask" && req.method === "POST") {
+    let body = "";
+    req.on("data", (c) => { body += c; if (body.length > 4096) req.destroy(); });
+    req.on("end", async () => {
+      let p = {}; try { p = JSON.parse(body); } catch { return json(400, { error: "bad request" }); }
+      const r = await ask(String(p.agent || ""), p.q, ip);
+      json(r.status, r.body);
+    });
+    return;
+  }
   if (url.pathname === "/api/state") {
     res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" });
     return res.end(JSON.stringify(publicState()));

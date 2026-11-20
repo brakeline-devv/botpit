@@ -292,3 +292,52 @@ footer { border-top: 1px solid var(--line); }
   .reveal { opacity: 1; transform: none; transition: none; } .tape-in, .bot, .crown, .gridfloor, .loop-line i { animation: none; } html { scroll-behavior: auto; }
   .chart.draw .ln { animation: none; stroke-dasharray: none; } .chart.draw .ends { opacity: 1; }
 }
+
+/* ---------------- ask the pit ---------------- */
+.ask { padding: 120px 0 10px; }
+.ask-sub { color: var(--dim); font-size: 16px; max-width: 560px; margin: 16px auto 0; }
+.ask-box { margin-top: 44px; border: 1px solid var(--line); border-radius: 28px; background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)); overflow: hidden; }
+.ask-pick { display: flex; gap: 8px; padding: 14px; border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; }
+.ask-pick::-webkit-scrollbar { display: none; }
+.ask-pick button { flex: none; display: inline-flex; align-items: center; gap: 9px; height: 46px; padding: 0 16px 0 5px; border-radius: 99px; border: 1px solid var(--line); background: rgba(255,255,255,.03); color: #e6e6ee; font: 500 14px var(--sans); cursor: pointer; transition: border-color .2s, background .2s, transform .2s; }
+.ask-pick button .ava { width: 36px; height: 36px; border-radius: 50%; }
+.ask-pick button:hover { transform: translateY(-1px); border-color: var(--line2); }
+.ask-pick button[aria-selected="true"] { border-color: var(--c); background: color-mix(in srgb, var(--c) 16%, transparent); color: #fff; }
+.ask-main { display: grid; grid-template-columns: 360px minmax(0, 1fr); min-height: 470px; }
+.ask-art { position: relative; display: grid; place-items: center; border-right: 1px solid var(--line); background: radial-gradient(70% 60% at 50% 45%, color-mix(in srgb, var(--c) 30%, transparent), transparent 75%); transition: background .5s; }
+.ask-art img { width: 300px; height: 300px; object-fit: contain; filter: drop-shadow(0 24px 30px rgba(0,0,0,.6)); animation: bob 4.6s ease-in-out infinite; }
+.ask-art.think img { animation: think .5s ease-in-out infinite alternate; }
+@keyframes think { from { transform: rotate(-3deg) translateY(-2px); } to { transform: rotate(3deg) translateY(2px); } }
+.ask-who { position: absolute; left: 0; right: 0; bottom: 26px; text-align: center; }
+.ask-who b { display: block; font: 600 22px var(--sans); letter-spacing: -.02em; } .ask-who span { font-size: 13px; color: var(--c); }
+.ask-chat { display: flex; flex-direction: column; padding: 20px 22px 16px; min-width: 0; }
+.ask-log { flex: 1; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; max-height: 330px; padding-right: 4px; }
+.ask-log .empty2 { margin: auto; color: var(--mute); font-size: 14px; text-align: center; }
+.qa-q { align-self: flex-end; max-width: 80%; background: #fff; color: #000; padding: 10px 15px; border-radius: 16px 16px 4px 16px; font-size: 14.5px; animation: pop .3s ease-out both; }
+.qa-a { display: grid; grid-template-columns: 38px 1fr; gap: 10px; max-width: 92%; animation: pop .35s ease-out both; }
+.qa-a .ava { width: 38px; height: 38px; border-radius: 12px; }
+.qa-a .bub { background: color-mix(in srgb, var(--c) 14%, rgba(255,255,255,.05)); border: 1px solid color-mix(in srgb, var(--c) 30%, transparent); padding: 10px 14px; border-radius: 4px 16px 16px 16px; font-size: 15px; line-height: 1.5; color: #f0f0f5; }
+.qa-a .bub small { display: block; color: var(--c); font-weight: 600; font-size: 12px; margin-bottom: 3px; }
+.qa-a .bub .share { display: inline-flex; align-items: center; gap: 6px; margin-top: 9px; font-size: 12px; color: var(--dim); border: 1px solid var(--line2); padding: 4px 10px; border-radius: 99px; transition: color .2s, border-color .2s; }
+.qa-a .bub .share:hover { color: #fff; border-color: #fff; }
+.qa-a .bub .share svg { width: 12px; height: 12px; }
+.qa-a.err .bub { background: rgba(255,255,255,.04); border-color: var(--line); color: var(--dim); font-style: italic; }
+.ask-sugg { display: flex; flex-wrap: wrap; gap: 7px; margin: 14px 0 10px; }
+.ask-sugg button { font: 13px var(--sans); color: #d6d6e0; background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: 99px; padding: 6px 12px; cursor: pointer; transition: border-color .2s, color .2s; }
+.ask-sugg button:hover { border-color: var(--c); color: #fff; }
+.ask-form { display: flex; gap: 8px; }
+.ask-form input { flex: 1; min-width: 0; height: 50px; border-radius: 14px; border: 1px solid var(--line2); background: rgba(0,0,0,.5); color: #fff; padding: 0 16px; font: 15px var(--sans); outline: none; transition: border-color .2s; }
+.ask-form input:focus { border-color: var(--c); }
+.ask-form button { height: 50px; padding: 0 24px; border-radius: 14px; border: 0; background: #fff; color: #000; font: 600 15px var(--sans); cursor: pointer; transition: opacity .2s, transform .2s; }
+.ask-form button:hover { transform: translateY(-1px); } .ask-form button:disabled { opacity: .4; cursor: default; transform: none; }
+.ask-foot { display: flex; justify-content: space-between; gap: 14px; margin-top: 10px; font-size: 11.5px; color: var(--mute); flex-wrap: wrap; }
+.ask-foot #askLeft { color: var(--dim); }
+.ct .askbtn { display: inline-flex; margin-top: 14px; width: 100%; justify-content: center; height: 42px; align-items: center; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); color: #fff; font: 500 14px var(--sans); background: color-mix(in srgb, var(--c) 12%, transparent); cursor: pointer; transition: background .2s; }
+.ct .askbtn:hover { background: color-mix(in srgb, var(--c) 26%, transparent); }
+@media (max-width: 900px) {
+  .ask-main { grid-template-columns: 1fr; }
+  .ask-art { border-right: 0; border-bottom: 1px solid var(--line); height: 230px; }
+  .ask-art img { width: 190px; height: 190px; margin-top: -20px; } .ask-who { bottom: 12px; } .ask-who b { font-size: 18px; }
+}
+@media (max-width: 680px) { .ask { padding-top: 80px; } .ask-box { border-radius: 22px; } .ask-chat { padding: 16px 14px 14px; } .ask-log { max-height: 300px; } }
+@media (prefers-reduced-motion: reduce) { .ask-art img { animation: none; } }

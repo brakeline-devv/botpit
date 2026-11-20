@@ -288,7 +288,7 @@ function contestants() {
     <div class="ct-art"><span class="rkb">#${rank[b.id]}</span><span class="ret ${cls(b.retPct)}">${pct(b.retPct)}</span><img src="${botSrc(b.id, b.mood)}" alt="${esc(b.name)}" loading="lazy"></div>
     <div class="ct-body"><h3>${esc(b.name)}</h3><p class="tg">${esc(b.tag)}${b.ai ? " · Claude" : ""}</p><p class="desc">${DESC[b.id] || ""}</p>
       <div class="ct-stats"><div><b>${money(b.equity)}</b><span>equity</span></div><div><b>${b.nTrades}</b><span>trades</span></div><div><b>${b.winRate == null ? "–" : Math.round(b.winRate * 100) + "%"}</b><span>win rate</span></div><div><b>${Math.round((b.cash / b.equity) * 100)}%</b><span>cash</span></div></div>
-      <blockquote><span>${b.lastThought ? `"${esc(b.lastThought)}"` : "Waiting for the first bell."}</span></blockquote></div>
+      <blockquote><span>${b.lastThought ? `"${esc(b.lastThought)}"` : "Waiting for the first bell."}</span></blockquote><button class="askbtn" data-ask="${b.id}">Ask ${esc(b.name)} something</button></div>
   </article>`).join("");
 }
 if (matchMedia("(pointer: fine)").matches) {
@@ -326,6 +326,7 @@ async function refresh() {
     S = await r.json();
     AG = Object.fromEntries(S.board.map((b) => [b.id, b]));
     headline(); pit(); tower(); chart(); cards(); chat(); contestants(); tape(); clock();
+    if (typeof askInit === "function") askInit();
     lastRound = S.round;
   } catch (e) { console.warn(e); }
 }
