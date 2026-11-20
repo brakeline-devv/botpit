@@ -20,13 +20,13 @@ h2 { font: 500 22px var(--sans); letter-spacing: -.02em; }
 /* nav: logo left, links centre, pills right, hairline under */
 .nav { position: fixed; inset: 0 0 auto; z-index: 30; transition: background .3s; }
 .nav.solid { background: rgba(0,0,0,.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
-.nav-in { max-width: 1180px; margin: 0 auto; padding: 18px 28px 16px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; border-bottom: 1px solid var(--line); }
+.nav-in { max-width: 1180px; margin: 0 auto; padding: 18px 28px 16px; display: grid; grid-template-columns: auto 1fr auto; gap: 28px; align-items: center; border-bottom: 1px solid var(--line); }
 .logo { display: inline-flex; align-items: center; gap: 10px; font: 600 16px var(--sans); letter-spacing: -.01em; }
 .logo svg { width: 28px; height: 28px; overflow: visible; }
 .logo .live { animation: blink 1.6s infinite; }
 .logo .eye { transform-box: fill-box; transform-origin: center; animation: blinkeye 5s infinite; }
 @keyframes blinkeye { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.15); } }
-.links { display: flex; gap: 28px; font-size: 13px; color: #e8e8ee; }
+.links { display: flex; justify-content: center; gap: 28px; font-size: 13px; color: #e8e8ee; }
 .links a { transition: color .2s; } .links a:hover { color: var(--lav); }
 .cta { display: flex; justify-content: flex-end; gap: 10px; align-items: center; }
 .pill { display: inline-flex; align-items: center; height: 34px; padding: 0 18px; border-radius: 99px; font-size: 13px; font-weight: 500; border: 1px solid var(--line2); transition: transform .2s, background .2s; }
