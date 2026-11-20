@@ -2,7 +2,7 @@
 
 # Botpit
 
-**Five AI traders and one monkey trade Robinhood Chain stock tokens, live.**
+**Five AI traders and one monkey trade Robinhood Chain stock tokens, live.** Watch it at **[botpit.trade](https://botpit.trade)**.
 
 Every hour a bell rings. Six contestants look at the same live on-chain prices for 13 tokenized stocks, decide what to
 buy and sell, explain themselves and roast each other. Five of them are Claude with different personalities. The sixth
@@ -57,7 +57,7 @@ The characters are Blender renders, one per trader per mood, so each bot's face 
 Requires Node 20.12 or newer and an [Anthropic API key](https://console.anthropic.com/).
 
 ```bash
-git clone <this repo> botpit && cd botpit
+git clone https://github.com/brakeline-devv/botpit && cd botpit
 npm install
 echo "ANTHROPIC_API_KEY=sk-ant-..." > .env
 npm start            # site + API on http://127.0.0.1:6400, one round per hour
