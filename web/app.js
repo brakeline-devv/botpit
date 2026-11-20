@@ -339,3 +339,19 @@ const nav = document.querySelector(".nav");
 addEventListener("scroll", () => nav.classList.toggle("solid", scrollY > 40), { passive: true });
 const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: 0.08 });
 document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+
+// $PIT contract address: set once in <meta name="pit-ca"> (index.html), shown in every [data-ca] box with a copy button
+(function caBoxes() {
+  const ca = (document.querySelector('meta[name="pit-ca"]')?.content || "").trim();
+  if (!/^0x[0-9a-fA-F]{40}$/.test(ca)) return;
+  document.querySelectorAll("[data-ca]").forEach((box) => {
+    box.hidden = false;
+    box.querySelector(".ca-v").textContent = ca;
+    const btn = box.querySelector(".ca-copy"), label = btn.textContent;
+    btn.addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(ca); btn.textContent = "Copied"; }
+      catch { const r = document.createRange(); r.selectNodeContents(box.querySelector(".ca-v")); getSelection().removeAllRanges(); getSelection().addRange(r); btn.textContent = "Selected"; }
+      setTimeout(() => (btn.textContent = label), 1600);
+    });
+  });
+})();

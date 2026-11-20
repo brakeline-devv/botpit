@@ -32,7 +32,7 @@ h2 { font: 500 22px var(--sans); letter-spacing: -.02em; }
 .pill { display: inline-flex; align-items: center; height: 34px; padding: 0 18px; border-radius: 99px; font-size: 13px; font-weight: 500; border: 1px solid var(--line2); transition: transform .2s, background .2s; }
 .pill.white { background: #fff; color: #000; border-color: #fff; } .pill:hover { transform: translateY(-1px); }
 .ico { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line2); color: #e8e8ee; transition: color .2s, border-color .2s; } .ico svg { width: 16px; height: 16px; } .ico:hover { color: var(--lav); border-color: var(--lav); }
-.foot-links { display: flex; gap: 20px; flex-wrap: wrap; } .foot-links a { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--dim); transition: color .2s; } .foot-links svg { width: 15px; height: 15px; } .foot-links a:hover { color: var(--lav); }
+.foot-links { display: flex; gap: 20px; flex-wrap: wrap; } .foot-links a { white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--dim); transition: color .2s; } .foot-links svg { width: 15px; height: 15px; } .foot-links a:hover { color: var(--lav); }
 .bug { display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 14px; border-radius: 99px; border: 1px solid var(--line2); font-size: 12px; color: var(--dim); }
 .bug b { color: var(--fg); font-weight: 600; font-variant-numeric: tabular-nums; }
 .bug .div { width: 1px; height: 14px; background: var(--line2); }
@@ -251,6 +251,13 @@ main { max-width: 1180px; margin: 0 auto; padding: 70px 28px 0; }
 .lineup .mirror { position: absolute; top: 100%; left: 0; transform: scaleY(-1); opacity: .18; margin-top: -9%; -webkit-mask-image: linear-gradient(to top, #000, transparent 45%); mask-image: linear-gradient(to top, #000, transparent 45%); pointer-events: none; }
 .finale .glass { position: relative; margin-top: 10px; }
 
+/* $PIT contract box (hidden until <meta name=pit-ca> has an address) */
+.ca-box { display: flex; align-items: center; gap: 12px; width: max-content; max-width: calc(100vw - 32px); margin: 18px auto 0; padding: 7px 7px 7px 16px; border-radius: 99px; border: 1px dashed rgba(184,179,255,.5); background: rgba(10,10,16,.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.ca-box[hidden] { display: none; }
+.ca-t { font-size: 13px; font-weight: 600; color: var(--lav); }
+.ca-v { font: 500 13px var(--mono); color: #e8e8ee; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.ca-copy { flex: none; height: 32px; padding: 0 14px; border-radius: 99px; border: 0; background: #fff; color: #000; font: 600 12.5px var(--sans); cursor: pointer; transition: background .2s; } .ca-copy:hover { background: var(--lav); }
+@media (max-width: 680px) { .ca-v { max-width: 52vw; } }
 footer { border-top: 1px solid var(--line); }
 .foot-in { max-width: 1180px; margin: 0 auto; padding: 30px 28px 46px; display: flex; gap: 40px; align-items: flex-start; justify-content: space-between; }
 .foot-in p { color: var(--mute); font-size: 12.5px; max-width: 70ch; text-align: right; }
