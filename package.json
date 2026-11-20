@@ -15,5 +15,6 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^1.10.0",
     "zod": "^4.6.7"
-  }
+  },
+  "license": "MIT"
 }
