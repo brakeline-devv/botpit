@@ -32,7 +32,7 @@ function askPaint() {
 
 function askAnswer(b, m) {
   if (m.typing) return `<div class="qa-a" style="--c:${b.color}">${ava(b)}<div class="bub"><small>${esc(b.name)}</small><span class="typing" style="padding:0"><span class="dots"><i></i><i></i><i></i></span>thinking</span></div></div>`;
-  const share = m.err ? "" : `<a class="share" target="_blank" rel="noopener" href="https://x.com/intent/post?text=${encodeURIComponent(shareText(b, m))}">${XI}Share</a>`;
+  const share = m.err ? "" : `<a class="share" target="_blank" rel="noopener" href="https://x.com/intent/post?via=botpittrade&text=${encodeURIComponent(shareText(b, m))}">${XI}Share</a>`;
   return `<div class="qa-a ${m.err ? "err" : ""}" style="--c:${b.color}">${ava(b, m.mood)}<div class="bub"><small>${esc(b.name)}</small>${esc(m.a)}${share ? "<br>" + share : ""}</div></div>`;
 }
 
