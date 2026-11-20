@@ -38,7 +38,7 @@ try: sc.cycles.denoiser = "OPTIX"
 except TypeError: pass
 sc.cycles.max_bounces = 6
 sc.cycles.transmission_bounces = 6
-if FMT == "wide": sc.render.resolution_x, sc.render.resolution_y = 1600, 900
+if FMT == "wide": sc.render.resolution_x, sc.render.resolution_y = 1920, 1080
 else: sc.render.resolution_x, sc.render.resolution_y = 720, 1280
 sc.render.resolution_percentage = 100
 sc.view_settings.view_transform = "Standard"

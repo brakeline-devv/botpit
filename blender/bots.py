@@ -287,7 +287,7 @@ elif MODE == "all":
             sc.render.filepath = os.path.join(argv[1], f"{id_}-{mood}.png")
             bpy.ops.render.render(write_still=True)
 elif MODE == "lineup":
-    sc.render.resolution_x, sc.render.resolution_y = 2000, 820
+    sc.render.resolution_x, sc.render.resolution_y = 3000, 1230
     lights(2.2)
     order = [("hype", "euphoric"), ("sigma", "smug"), ("rocket", "confident"), ("doomer", "salty"), ("boomer", "calm"), ("monkey", "confident")]
     xs = [-5.0, -3.0, -1.0, 1.0, 3.0, 5.0]
