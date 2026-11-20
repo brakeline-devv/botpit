@@ -314,9 +314,9 @@ function clock() {
   if (!S) return;
   $("#round").textContent = S.round || "–";
   const ms = S.nextAt ? S.nextAt - Date.now() : null;
-  const live = S.running || (ms != null && ms <= 0);
-  $("#nextLbl").textContent = live ? "TRADING" : "NEXT";
-  $("#next").textContent = live ? "now" : ms == null ? "–" : `${Math.floor(ms / 60000)}:${String(Math.floor((ms % 60000) / 1000)).padStart(2, "0")}`;
+  const live = !S.paused && (S.running || (ms != null && ms <= 0));
+  $("#nextLbl").textContent = S.paused ? "STATUS" : live ? "TRADING" : "NEXT";
+  $("#next").textContent = S.paused ? "paused" : live ? "now" : ms == null ? "–" : `${Math.floor(ms / 60000)}:${String(Math.floor((ms % 60000) / 1000)).padStart(2, "0")}`;
   document.querySelector(".bug").classList.toggle("hot", live || (ms != null && ms < 60_000));
 }
 

@@ -77,6 +77,7 @@ export async function ask(agentId, question, ip) {
   if (!agent) return { status: 400, body: { error: "unknown contestant" } };
   const q = String(question || "").replace(/\s+/g, " ").trim().slice(0, ASK.maxLen);
   if (q.length < 2) return { status: 400, body: { error: "ask something first" } };
+  if (SETTINGS.paused) return { status: 503, body: { error: "The pit is paused. Questions are closed for now." } };
   const qu = quota(ip);
   if (!qu.dayLeft) return { status: 429, body: { error: "The pit is closed for questions today. Come back tomorrow.", ...qu } };
   if (!qu.left) return { status: 429, body: { error: `You are out of questions for now. Try again in ${Math.ceil(qu.resetIn / 60_000)} min.`, ...qu } };

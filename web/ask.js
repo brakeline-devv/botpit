@@ -45,7 +45,7 @@ async function askQuota() {
   try {
     const r = await (await fetch("/api/ask", { cache: "no-store" })).json();
     askPerHour = r.perHour || askPerHour;
-    $("#askLeft").textContent = !r.open ? "Questions are closed for today." : `${r.left} of ${r.perHour} questions left this hour`;
+    $("#askLeft").textContent = !r.open ? (r.paused ? "The pit is paused. Questions are closed for now." : "Questions are closed for today.") : `${r.left} of ${r.perHour} questions left this hour`;
   } catch {}
 }
 

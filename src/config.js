@@ -32,6 +32,8 @@ export const SETTINGS = {
   model: process.env.BOTPIT_MODEL || "claude-haiku-5-5",
   // "claude" calls the API; "mock" uses a rule-based stand-in (free, for testing the engine and the site)
   brain: process.env.BOTPIT_BRAIN || "claude",
+  // BOTPIT_PAUSED=1: no rounds and no Ask, so no Claude calls at all; the site keeps showing the last state
+  paused: process.env.BOTPIT_PAUSED === "1",
   keepTicks: 24 * 60,      // price ticks kept in state (about two months at one per hour)
   keepFeed: 600,
 };

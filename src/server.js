@@ -37,7 +37,7 @@ function publicState() {
   const bench = spy0 ? s.prices.filter((p) => p.p.SPY).map((p) => ({ t: p.t, eq: Math.round(SETTINGS.startCash * p.p.SPY / spy0 * 100) / 100 })) : [];
   return {
     running: isRunning(), bench,
-    round: s.round, startedAt: s.startedAt, nextAt, tickMin: SETTINGS.tickEveryMs / 60_000,
+    round: s.round, startedAt: s.startedAt, nextAt, paused: SETTINGS.paused, tickMin: SETTINGS.tickEveryMs / 60_000,
     model: SETTINGS.brain === "mock" ? "mock" : SETTINGS.model, startCash: SETTINGS.startCash,
     board, feed: s.feed.slice(-150).reverse(), market: s.last,
   };
@@ -49,7 +49,7 @@ http.createServer((req, res) => {
   // nginx passes the visitor's address in x-real-ip; the server only listens on 127.0.0.1, so the header can be trusted
   const ip = String(req.headers["x-real-ip"] || req.socket.remoteAddress || "?");
   const json = (code, obj) => { res.writeHead(code, { "content-type": "application/json", "cache-control": "no-store" }); res.end(JSON.stringify(obj)); };
-  if (url.pathname === "/api/ask" && req.method === "GET") { const q = quota(ip); return json(200, { left: q.left, perHour: ASK.perIpHour, open: q.dayLeft > 0, maxLen: ASK.maxLen }); }
+  if (url.pathname === "/api/ask" && req.method === "GET") { const q = quota(ip); return json(200, { left: q.left, perHour: ASK.perIpHour, open: !SETTINGS.paused && q.dayLeft > 0, paused: SETTINGS.paused, maxLen: ASK.maxLen }); }
   if (url.pathname === "/api/ask" && req.method === "POST") {
     let body = "";
     req.on("data", (c) => { body += c; if (body.length > 4096) req.destroy(); });
@@ -81,7 +81,8 @@ http.createServer((req, res) => {
 }).listen(SETTINGS.port, "127.0.0.1", () => console.log(`botpit on http://127.0.0.1:${SETTINGS.port} · brain=${SETTINGS.brain} model=${SETTINGS.model} · round every ${SETTINGS.tickEveryMs / 60_000} min`));
 
 // Round loop. If the last round is older than one interval (or there is none), run one right away.
-if (!process.argv.includes("--no-loop")) {
+if (SETTINGS.paused) console.log("paused: no rounds, no Ask (BOTPIT_PAUSED=1)");
+else if (!process.argv.includes("--no-loop")) {
   const schedule = (ms) => { nextAt = Date.now() + ms; setTimeout(tick, ms); };
   async function tick() {
     try { await runRound(); } catch (e) { console.error("round failed:", e.message); }
